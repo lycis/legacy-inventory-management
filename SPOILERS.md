@@ -46,5 +46,6 @@ This document reveals the worst habits baked into the system so refactoring exer
 - The CLI and REST server auto-start together; failure to bind the port leaves the CLI running while the REST interface silently reports `BOOT_FAIL` through the `REST` command only.
 - Every run starts from the same four seed items, so repeat testing resets history whether you want it or not.
 - The inspirational motto loader depends on `legacy-support.jar`; if you skip copying it into `lib/`, the app falls back to grumpy warning messages.
+- `StoreBatchSync` sleeps until the next full hour before doing anything, so testing it requires patience or editing the clock.
 
 Use these spoilers to build targeted tests or to choose which monsters to slay first during refactoring.

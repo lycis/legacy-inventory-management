@@ -68,3 +68,20 @@ http://localhost:8089
 - Requests with bodies must send `Content-Length`; chunked and keep-alive semantics are ignored.
 - Responses always close the socket and include hand-counted content lengths, so mismatches may happen if you edit the payload mid-flight.
 - JSON formatting is literal string concatenation; numbers and strings appear as whatever the system currently stores.
+
+## Nightly Store Batch Job
+
+`StoreBatchSync` simulates the nightly store process that pushes local counts into the central app.
+
+1. Compile alongside the main app (the motto jar is optional here):
+   ```bash
+   javac StoreBatchSync.java
+   ```
+2. Run it with store-specific flags while the REST service is listening:
+   ```bash
+   java StoreBatchSync store="Downtown" file=store.csv url=http://localhost:8089
+   ```
+3. Add `dry` to preview without mutating anything.
+4. Provide a CSV file with rows like `Name,Category,Quantity,Price,Location`. Missing fields default the location to `STORE (auto)`.
+
+The batch script waits until the top of each hour, reloads the inventory file, then performs naive lookups (`GET /items/{name}`), creates missing entries, and issues updates with `POST /items/{id-or-name}`. Its JSON parsing is a set of brittle substring hacks, so unexpected responses will happily corrupt the sync.
